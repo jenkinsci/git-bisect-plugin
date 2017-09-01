@@ -1,0 +1,1 @@
+mvnDebug hpi:run

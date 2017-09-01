@@ -10,26 +10,59 @@
     Creates a text field that shows the value of the "name" property.
     When submitted, it will be passed to the corresponding constructor parameter.
   -->
-  <f:entry title="Good start commit" field="goodStartCommit"
-    description="A known commit where everything was good">
+  <f:entry title="Good start revision" field="goodStartCommit"
+    description="A known revision where the test was working, for example origin/master">
     <f:textbox />
   </f:entry>
-  <f:entry title="Bad end commit" field="badEndCommit"
-    description="A known commit where it was not working any longer">
+  <f:entry title="Bad end revision" field="badEndCommit"
+    description="A known revision where the test was not longer working, for example origin/master">
     <f:textbox />
   </f:entry>
   <f:entry title="Project to build" field="jobToRun" 
-  	description="The job that determines weather the commit was good/bad">
+  	description="The project that determines weather the revision was good or bad.
+  				 This project will run for each revision that 'git bisect' will test.
+  				 Any parameters defined the bisect project, will be passed into this project.
+  				 
+  				 A special parameter containing the revision to test will also be passed in.">
+    <f:textbox/>
+  </f:entry>
+  <f:entry
+  	title="Revision Parameter Name"
+  	field="revisionParameterName"
+  	description="This field allows you to control the name of the special parameter
+  				 that will hold the revision to test and will be passed into the project
+  				 under test">
+  	<f:textbox default="REVISION"/>
+  </f:entry>
+  <f:entry title="Search Identifier" field="searchIdentifier"
+  	description="A key for the search. 
+  	If you run the bisect again with the same name, it will continue running from previous runs based on this variable">
     <f:textbox />
   </f:entry>
-  <f:entry title="Unique Search Name" field="searchIdentifier">
-  	description="A unique name for the search, 
-  	if you run the bisect again with the same name, it will continue running from previous runs based on this variable"
-    <f:textbox />
+  <f:entry 
+	title="Retry number"
+	field="retryCount"
+	description="Use this if the project or some of the revisions are known to not be stable.
+				 If a revision fails, It won't be marked as 'bad' unless it 
+				 failed the specified number of times.
+				 defaults to no retries.
+				 
+				 Useful when the project fails because of reasons unrelated 
+				 to your search (such as jenkins failures or network interferences)">	
+	<f:number default="0"/>
   </f:entry>
-  <f:entry title="Unique Search Name" field="searchIdentifier">
-  	description="A unique name for the search, 
-  	if you run the bisect again with the same name, it will continue running from previous runs based on this variable"
-    <f:textbox />
+   <f:entry 
+	title="Min Successful Runs"
+	field="minSuccessfulIterations"
+	description="Use this if the bug you are looking for may need more then one run to reveal itself
+				 For example, if you are looking for a race condition that occurs 1 time per 10 runs. 
+				 You can combine this property with the Retry property.">
+	<f:number default="0"/>
+  </f:entry>
+  <f:entry 
+    field="continuesBuild"
+  	title="Run as a single continues build" checked="true" 
+  	description="Disable this if you want each step to be run separately as a different build (good for slow downstream builds)">
+	<f:checkbox default="true"/>
   </f:entry>
 </j:jelly>
