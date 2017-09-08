@@ -9,7 +9,6 @@
     <version>2.11</version>
     <relativePath/>
   </parent>
-  <groupId>git</groupId>
   <artifactId>git-bisect</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
