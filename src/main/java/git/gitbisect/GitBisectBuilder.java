@@ -26,6 +26,8 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 	final int retryCount;
 	final boolean continuesBuild;
 	final int minSuccessfulIterations;
+	final boolean overrideGitCommand;
+	final String gitCommand;
 
     transient BisectConfiguration configuration;
 	transient CommandsRunner helper;
@@ -41,7 +43,9 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
     		String revisionParameterName,
     		int retryCount, 
     		boolean continuesBuild,
-    		int minSuccessfulIterations) {
+    		int minSuccessfulIterations,
+    		boolean overrideGitCommand,
+    		String gitCommand) {
 		this.jobToRun = jobToRun.trim();
 		this.goodStartCommit = goodStartCommit.trim();
 		this.badEndCommit = badEndCommit.trim();
@@ -50,17 +54,20 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 		this.retryCount = retryCount;
 		this.continuesBuild = continuesBuild;
 		this.minSuccessfulIterations = minSuccessfulIterations;
+		this.overrideGitCommand = overrideGitCommand;
+		this.gitCommand = gitCommand;
     }
     
     @Override
     public void perform(Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException{
     	Logger.initializeLogger(listener);
+    	Logger.log("Initializing");
     	
-    	this.helper = new CommandsRunner(build, workspace, launcher, listener);
+    	this.helper = new CommandsRunner(build, workspace, launcher, listener, gitCommand);
     	this.configuration = new BisectConfiguration(build, workspace, listener, searchIdentifier);
     	this.commitTester = CommitTester.buildFor(build, jobToRun, revisionParameterName);
     	
-		Logger.log("Initializing");
+		Logger.log("Git command that will be used is: '" + overrideGitCommand + "'");
 		BisectionResult bisectResult = startBisecting();
 		
 		if (bisectResult.isDone) {
@@ -213,6 +220,14 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 	
 	public int getMinSuccessfulIterations() {
 		return minSuccessfulIterations;
+	}
+	
+	public boolean getOverrideGitCommand() {
+		return overrideGitCommand;
+	}
+	
+	public String getGitCommand() {
+		return gitCommand;
 	}
 
     @Extension

@@ -5,9 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Cause;
+import hudson.model.Job;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
 import hudson.model.ParametersAction;
@@ -17,59 +15,68 @@ import hudson.model.Run;
 import hudson.model.StringParameterValue;
 import hudson.model.queue.QueueTaskFuture;
 import jenkins.model.Jenkins;
+import jenkins.model.ParameterizedJobMixIn;
 
 public class CommitTester {
+	private final class JobWrapper extends ParameterizedJobMixIn {
+		@Override
+		protected Job<?, ?> asJob() {
+			return downstreamProj;
+		}
+	}
+
 	private Run<?, ?> build;
-	private AbstractProject<?, ?> downstreamProj;
+	private Job<?, ?> downstreamProj;
 	private String revisionParameterName;
 
-	CommitTester(Run<?, ?> build, AbstractProject<?, ?> downstreamProj, String revisionParameterName) {
+	CommitTester(Run<?, ?> build, Job<?, ?> downstreamProj, String revisionParameterName) {
 		this.build = build;
 		this.downstreamProj = downstreamProj;
 		this.revisionParameterName = revisionParameterName;
 	}
 
 	public boolean test(String commitToTest) throws InterruptedException {
-		QueueTaskFuture<? extends AbstractBuild<?, ?>> buildResult = runDownStreamProject(build, commitToTest);
+		QueueTaskFuture<? extends Run<?, ?>> buildResult = runDownStreamProject(build, commitToTest);
 		try {
 			return getDownStreamResult(buildResult, commitToTest);
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 			Logger.error(
 					"Downstream project threw an exception for revision " + commitToTest + " you may want to skip it");
-			throw new DownstreamProjectCrashed();
+			throw new DownstreamProjectAborted();
 		}
 	}
 	
-	private QueueTaskFuture<? extends AbstractBuild<?, ?>> runDownStreamProject(Run<?, ?> build, String commitId) {
+	private QueueTaskFuture<? extends Run<?, ?>> runDownStreamProject(Run<?, ?> build, String commitId) {
 		ArrayList<ParameterValue> combinedParameters = bubbleDownParameters(build, commitId);
 
-		QueueTaskFuture<? extends AbstractBuild<?, ?>> buildResult = downstreamProj.scheduleBuild2(-1,
-				new Cause.UpstreamCause(build), new ParametersAction(combinedParameters));
+		QueueTaskFuture<? extends Run<?, ?>> buildResult =
+				new JobWrapper().scheduleBuild2(-1, new ParametersAction(combinedParameters));
 		return buildResult;
 	}
 
-	private boolean getDownStreamResult(QueueTaskFuture<? extends AbstractBuild<?, ?>> buildResult, String commitToTest)
+	private boolean getDownStreamResult(QueueTaskFuture<? extends Run<?, ?>> buildResult, String commitToTest)
 			throws InterruptedException, ExecutionException 
 	{
-		AbstractBuild<?, ?> abstractBuild = buildResult.get();
-		if (successfull(abstractBuild)) {
+		Result downstreamResult = buildResult.get().getResult();
+		if (successfull(downstreamResult)) {
 			Logger.log("Downstream build was succesful");
 			return true;
-		} else if (aborted(abstractBuild)) {
-			throw new DownstreamProjectCrashed();
+		} else if (aborted(downstreamResult)) {
+			Logger.log("Downstream build was aborted");
+			throw new DownstreamProjectAborted();
 		} else {
-			Logger.log("Downstream build had failed " + abstractBuild.getResult().toString());
+			Logger.log("Downstream build had failed " + downstreamResult.toString());
 			return false;
 		}
 	}
 
-	private boolean aborted(AbstractBuild<?, ?> abstractBuild) {
-		return abstractBuild.equals(Result.ABORTED);
+	private boolean aborted(Result downstreamResult) {
+		return downstreamResult.equals(Result.ABORTED);
 	}
 
-	private boolean successfull(AbstractBuild<?, ?> abstractBuild) {
-		return abstractBuild.getResult().equals(Result.SUCCESS);
+	private boolean successfull(Result downstreamResult) {
+		return downstreamResult.equals(Result.SUCCESS);
 	}
 
 	private ArrayList<ParameterValue> bubbleDownParameters(Run<?, ?> build, String commitId) {
@@ -95,7 +102,7 @@ public class CommitTester {
 		}
 	}
 
-	private HashMap<String, ParameterValue> defaultJobParameters(AbstractProject<?, ?> downstreamProj) {
+	private HashMap<String, ParameterValue> defaultJobParameters(Job<?, ?> downstreamProj) {
 		ParametersDefinitionProperty paramDefProp = downstreamProj.getProperty(ParametersDefinitionProperty.class);
 
 		HashMap<String, ParameterValue> defValues = new HashMap<>();
@@ -120,17 +127,17 @@ public class CommitTester {
 		return defValues;
 	}
 
-	private static AbstractProject<?, ?> findDownStreamProject(String jobToRun) 
+	private static Job<?, ?> findDownStreamProject(String jobToRun) 
 	{
 		Logger.log("Looking for '" + jobToRun + "' as downstream project");
-		for (AbstractProject<?, ?> proj : Jenkins.getInstance().getAllItems(AbstractProject.class)) 
+		for (Job<?, ?> proj : Jenkins.getInstance().getAllItems(Job.class)) 
 			if (proj.getName().equals(jobToRun))
 				return proj;
 		return null;
 	}
 	
 	public static CommitTester buildFor(Run<?, ?> bisectBuild, String jobToRun, String revisionParameterName) {
-		AbstractProject<?, ?> downstreamProject = findDownStreamProject(jobToRun);
+		Job<?, ?> downstreamProject = findDownStreamProject(jobToRun);
 		
     	if (downstreamProject == null)
     		throw new DownstreamProjectNotFound();

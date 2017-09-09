@@ -2,24 +2,18 @@ package git.gitbisect;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.google.common.io.Files;
 
-import git.gitbisect.CommandsRunner.BisectionResult;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.plugins.git.GitSCM;
 
 public class CommandsRunner {
 	public static class BisectionResult
@@ -56,12 +50,12 @@ public class CommandsRunner {
 	TaskListener listener;
 	String gitCommand;
 	
-	public CommandsRunner(Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener) {
+	public CommandsRunner(Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener, String gitCommand) {
 		this.build = build;
 		this.workspace = workspace;
 		this.launcher = launcher;
 		this.listener = listener;
-		this.gitCommand = getGitCommand(build, listener);
+		this.gitCommand = gitCommand;
 		writeToLog("Using the git command - '" + gitCommand + "'");
 	}
 	
@@ -215,11 +209,5 @@ public class CommandsRunner {
 				"Could not run the command - \n" + 
 				command + " it failed with the following error - \n" + 
 				result.stderr);
-	}
-	
-	private String getGitCommand(Run<?, ?> build, TaskListener listener) {
-		AbstractProject<?, ?> proj = (AbstractProject<?, ?>)build.getParent();
-		GitSCM g = (GitSCM)proj.getScm();
-		return g.getGitExe(null, listener);
 	}
 }

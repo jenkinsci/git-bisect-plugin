@@ -65,4 +65,17 @@
   	description="Disable this if you want each step to be run separately as a different build (good for slow downstream builds)">
 	<f:checkbox default="true"/>
   </f:entry>
+  <f:block>
+  	<f:optionalBlock 
+			title="Override git command" 
+		    default="false" 
+		    checked="${overrideGitCommand}"
+		    field="overrideGitCommand"
+		    description="Used if you use a different git executable that is not 'git'"
+		    inline="true"> 
+	    <f:entry title="Git Command:" description="The git command that will be used for running 'git bisect ...'"> 
+	      <f:textbox field="gitCommand" default="git"/> 
+	    </f:entry> 
+	</f:optionalBlock> 
+  </f:block> 
 </j:jelly>
