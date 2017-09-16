@@ -75,6 +75,10 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 			runBisection();
 		} finally {
 			configuration.cleanup();
+			// This solves some annoying problems 
+			// Git sometimes fails to delete a branch while bisecting
+			// It tries to do this while fetching, so it's before the next build starts
+			helper.resetBisection();
 		}
     }
 
