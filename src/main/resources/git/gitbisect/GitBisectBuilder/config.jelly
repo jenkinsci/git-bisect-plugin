@@ -57,7 +57,7 @@
 	description="Use this if the bug you are looking for may need more then one run to reveal itself
 				 For example, if you are looking for a race condition that occurs 1 time per 10 runs. 
 				 You can combine this property with the Retry property.">
-	<f:number default="0"/>
+	<f:number default="1"/>
   </f:entry>
   <f:entry 
     field="continuesBuild"

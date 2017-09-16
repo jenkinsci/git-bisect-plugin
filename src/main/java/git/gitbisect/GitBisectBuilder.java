@@ -132,7 +132,9 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 	private BisectionResult run(String commit) throws InterruptedException, IOException {
 		Logger.log("Running against revision - " + commit);
 		
-		RevisionClassifier buildResult = new RevisionClassifier(retryCount, minSuccessfulIterations);
+		int neededFailureNumber = retryCount + 1;
+		
+		RevisionClassifier buildResult = new RevisionClassifier(neededFailureNumber, minSuccessfulIterations);
 		do
 		{
 			Logger.log("Running downstream project with revision = '" + commit +"'");
