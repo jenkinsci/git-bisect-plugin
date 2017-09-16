@@ -1,6 +1,7 @@
 package git.gitbisect;
 import java.io.IOException;
 
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import git.gitbisect.CommandsRunner.BisectionResult;
@@ -241,13 +242,14 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 	}
 
     @Extension
+    @Symbol("gitbisect")
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
             return true;
         }
 
         public String getDisplayName() {
-            return "Git Bisect Configurations";
+            return "Git Bisect";
         }
     }
 }
