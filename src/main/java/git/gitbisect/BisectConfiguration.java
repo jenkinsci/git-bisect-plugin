@@ -9,13 +9,11 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 
 public class BisectConfiguration {
-	Run<?, ?> build;
 	TaskListener listener;
 	FilePath masterResultFile;
 	FilePath localResultsFile;
 	
 	BisectConfiguration(Run<?,?> build, FilePath workspace, TaskListener listener, String searchIdentifier) throws IOException, InterruptedException{
-    	this.build = build;
 		this.listener = listener;
     	
 		File rootDir = build.getParent().getRootDir();

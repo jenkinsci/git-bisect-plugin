@@ -209,9 +209,9 @@ public class CommandsRunner {
 	}
 	
 	private void writeResultToLog(CommandOutput result, String... cmds) {
-		String command = gitCommand + " ";
+		StringBuffer command = new StringBuffer(gitCommand + " ");
 		for (String s : cmds)
-			command += s + " ";
+			command.append(s).append(" ");
 		
 		writeToLog(
 			"The following command:\n" + 

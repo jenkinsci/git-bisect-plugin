@@ -68,7 +68,7 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
     	this.configuration = new BisectConfiguration(build, workspace, listener, searchIdentifier);
     	this.commitTester = CommitTester.buildFor(build, jobToRun, revisionParameterName);
     	
-		Logger.log("Git command that will be used is: '" + overrideGitCommand + "'");
+		Logger.log("Git command that will be used is: '" + gitCommand + "'");
 		
 		try
 		{
@@ -94,9 +94,9 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 		
 		if (bisectResult.isDone)
 			Logger.log("Bisect completed, wanted revision is - " + bisectResult.commit);
-    }
+	}
 
-    class RevisionClassifier
+    static class RevisionClassifier
     {
     	private int remainingFailures;
 		private int remainingSuccessfulIterations;

@@ -18,6 +18,7 @@ import jenkins.model.Jenkins;
 import jenkins.model.ParameterizedJobMixIn;
 
 public class CommitTester {
+	@SuppressWarnings("rawtypes")
 	private final class JobWrapper extends ParameterizedJobMixIn {
 		@Override
 		protected Job<?, ?> asJob() {
@@ -50,6 +51,7 @@ public class CommitTester {
 	private QueueTaskFuture<? extends Run<?, ?>> runDownStreamProject(Run<?, ?> build, String commitId) {
 		ArrayList<ParameterValue> combinedParameters = bubbleDownParameters(build, commitId);
 
+		@SuppressWarnings("unchecked")
 		QueueTaskFuture<? extends Run<?, ?>> buildResult =
 				new JobWrapper().scheduleBuild2(-1, new ParametersAction(combinedParameters));
 		return buildResult;
@@ -130,7 +132,10 @@ public class CommitTester {
 	private static Job<?, ?> findDownStreamProject(String jobToRun) 
 	{
 		Logger.log("Looking for '" + jobToRun + "' as downstream project");
-		for (Job<?, ?> proj : Jenkins.getInstance().getAllItems(Job.class)) 
+		Jenkins jenkins = Jenkins.getInstance();
+		if (jenkins == null) return null;
+		
+		for (Job<?, ?> proj : jenkins.getAllItems(Job.class)) 
 			if (proj.getName().equals(jobToRun))
 				return proj;
 		return null;
