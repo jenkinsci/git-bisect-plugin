@@ -44,7 +44,7 @@ public class CommitTester {
 			e.printStackTrace();
 			Logger.error(
 					"Downstream project threw an exception for revision " + commitToTest + " you may want to skip it");
-			throw new DownstreamProjectAborted();
+			throw new DownstreamProjectCrashed();
 		}
 	}
 	
@@ -61,12 +61,16 @@ public class CommitTester {
 			throws InterruptedException, ExecutionException 
 	{
 		Result downstreamResult = buildResult.get().getResult();
-		if (successfull(downstreamResult)) {
+		if (downstreamResult == null)
+		{
+			Logger.log("Downstream build had failed in an unknown manner");
+			throw new DownstreamProjectCrashed();
+		} else if (successfull(downstreamResult)) {
 			Logger.log("Downstream build was succesful");
 			return true;
 		} else if (aborted(downstreamResult)) {
 			Logger.log("Downstream build was aborted");
-			throw new DownstreamProjectAborted();
+			throw new DownstreamProjectCrashed();
 		} else {
 			Logger.log("Downstream build had failed " + downstreamResult.toString());
 			return false;
