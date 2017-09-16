@@ -1,14 +1,13 @@
 package git.gitbisect;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.io.Files;
+import com.google.common.io.CharStreams;
 
 import hudson.FilePath;
 import hudson.Launcher;
@@ -84,13 +83,13 @@ public class CommandsRunner {
 		runCommandAndForget("bisect", "start", "--no-checkout");
 	}
 	
-	public BisectionResult bisectFromFile(String path) throws IOException, InterruptedException
+	public BisectionResult bisectFromFile(FilePath file) throws IOException, InterruptedException
 	{
-		String completionLine = findCompletionToken(path);
+		String completionLine = findCompletionToken(file);
 		if (completionLine != null)
 			return new BisectionResult(revisionFromLine(completionLine), true);
 		
-		CommandOutput bisectOutput = runCommand("bisect", "replay", path);
+		CommandOutput bisectOutput = runCommand("bisect", "replay", file.getName());
 		return parseBisectOutput(bisectOutput);
 	}
 
@@ -100,9 +99,12 @@ public class CommandsRunner {
 		return completionLine.substring(revStart, revEnd);
 	}
 
-	private String findCompletionToken(String path) throws IOException, InterruptedException {
-		List<String> bisectLines = Files.readLines(new File(path), Charset.defaultCharset());
-		
+	private String findCompletionToken(FilePath file) throws IOException, InterruptedException {
+		return findCompletionToken(file.readToString());
+	}
+	
+	private String findCompletionToken(String content) throws IOException, InterruptedException {
+		List<String> bisectLines = linesOf(content);
 		for (String line : bisectLines)
 		{
 			if (hasCompletionToken(line))
@@ -110,6 +112,11 @@ public class CommandsRunner {
 		}
 		
 		return null;
+	}
+
+	private List<String> linesOf(String s) throws IOException, InterruptedException {
+		return CharStreams.readLines(
+				CharStreams.newReaderSupplier(s));
 	}
 	
 	public boolean checkExistance(String commit) throws IOException, InterruptedException {
@@ -130,7 +137,13 @@ public class CommandsRunner {
 	private BisectionResult parseBisectOutput(CommandOutput bisectOutput) throws IOException, InterruptedException {
 		boolean isDone = hasCompletionToken(bisectOutput.stdout);
 		
-		String nextCommit = getNextCommit();
+		String nextCommit;
+		
+		if (isDone)
+			nextCommit = findCompletionToken(bisectOutput.stdout);
+		else
+			nextCommit = getNextCommit();
+		
 		return new BisectionResult(nextCommit, isDone);
 	}
 	
@@ -166,6 +179,7 @@ public class CommandsRunner {
 		return result;
 	}
 	
+	static String enc = Charset.defaultCharset().name();
 	private CommandOutput runCommandImpl(String... cmds) throws IOException, InterruptedException
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -182,9 +196,10 @@ public class CommandsRunner {
 		.stderr(capturedErrors)
 		.join();
 		
+		
 		return new CommandOutput(
-				out.toString().trim(), 
-				capturedErrors.toString().trim(), 
+				out.toString(enc).trim(), 
+				capturedErrors.toString(enc).trim(), 
 				exitStatus);
 	}
 	

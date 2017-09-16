@@ -21,8 +21,10 @@ public class BisectConfiguration {
 		File rootDir = build.getParent().getRootDir();
 
     	masterResultFile = new FilePath(rootDir).child(searchIdentifier);
-		localResultsFile = new FilePath(File.createTempFile("jenkins_git_bisect", masterResultFile.getName()));
+		localResultsFile = workspace.createTempFile("jenkins_git_bisect", masterResultFile.getName());
 
+		writeToLog("Local file to be used - " + localResultsFile.getRemote());
+		
 		fetchFromMaster();
 	}
 	
@@ -38,7 +40,7 @@ public class BisectConfiguration {
 	public void fetchFromMaster() throws IOException, InterruptedException {
 		if (hasPreviousConfiguration())
 		{
-			writeToLog("Copying new results file from master");
+			writeToLog("Copying latest results file from master to " + localResultsFile.getRemote());
 			masterResultFile.copyTo(localResultsFile);
 		}
 		else
@@ -49,16 +51,19 @@ public class BisectConfiguration {
 		}
 	}
 	
-	public String localFilePath()
+	public FilePath localFile()
 	{
-		// The API looks funny like this. 
-		// The "getRemote" method returns the full path under the remote host.
-		// In this case, the host is the local machine.
-		return localResultsFile.getRemote();
+		return localResultsFile;
+	}
+	
+	public void cleanup() throws IOException, InterruptedException
+	{
+		localResultsFile.delete();
 	}
 
 	public boolean hasPreviousConfiguration() throws IOException, InterruptedException {
-		return masterResultFile.exists();
+		return masterResultFile.exists() && 
+			   !masterResultFile.readToString().isEmpty();
 	}
 	
 	private void writeToLog(String line)

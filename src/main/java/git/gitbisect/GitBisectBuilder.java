@@ -68,6 +68,16 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
     	this.commitTester = CommitTester.buildFor(build, jobToRun, revisionParameterName);
     	
 		Logger.log("Git command that will be used is: '" + overrideGitCommand + "'");
+		
+		try
+		{
+			runBisection();
+		} finally {
+			configuration.cleanup();
+		}
+    }
+
+	private void runBisection() throws IOException, InterruptedException {
 		BisectionResult bisectResult = startBisecting();
 		
 		if (bisectResult.isDone) {
@@ -165,7 +175,7 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 	}
 
 	private BisectionResult bisectWithPreviousResults() throws IOException, InterruptedException {
-		return helper.bisectFromFile(configuration.localFilePath());
+		return helper.bisectFromFile(configuration.localFile());
 	}
 
 	private BisectionResult bisectWithGivenInput() throws IOException, InterruptedException {
