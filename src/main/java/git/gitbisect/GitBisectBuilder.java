@@ -66,7 +66,7 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
     	
     	this.helper = new CommandsRunner(build, workspace, launcher, listener, gitCommand);
     	this.configuration = new BisectConfiguration(build, workspace, listener, searchIdentifier);
-    	this.commitTester = CommitTester.buildFor(build, jobToRun, revisionParameterName);
+    	this.commitTester = CommitTester.buildFor(build, jobToRun);
     	
 		Logger.log("Git command that will be used is: '" + gitCommand + "'");
 		
@@ -142,7 +142,7 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 		do
 		{
 			Logger.log("Running downstream project with revision = '" + commit +"'");
-			buildResult.updateResult(commitTester.test(commit));
+			buildResult.updateResult(commitTester.test(CommitTester.withBisectParams(revisionParameterName, commit)));
 		}
 		while (!buildResult.verifiedResult());
 		

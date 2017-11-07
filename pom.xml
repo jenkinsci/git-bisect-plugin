@@ -9,7 +9,7 @@
     <relativePath />
   </parent>
   <artifactId>git-bisect</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <properties>

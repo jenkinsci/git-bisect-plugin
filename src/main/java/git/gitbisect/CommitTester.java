@@ -28,28 +28,28 @@ public class CommitTester {
 
 	private Run<?, ?> build;
 	private Job<?, ?> downstreamProj;
-	private String revisionParameterName;
 
-	CommitTester(Run<?, ?> build, Job<?, ?> downstreamProj, String revisionParameterName) {
+	public CommitTester(Run<?, ?> build, Job<?, ?> downstreamProj) {
 		this.build = build;
 		this.downstreamProj = downstreamProj;
-		this.revisionParameterName = revisionParameterName;
 	}
 
-	public boolean test(String commitToTest) throws InterruptedException {
-		QueueTaskFuture<? extends Run<?, ?>> buildResult = runDownStreamProject(build, commitToTest);
+	public boolean test(HashMap<String, ParameterValue> bisectParameters) throws InterruptedException {
+		QueueTaskFuture<? extends Run<?, ?>> buildResult = runDownStreamProject(bisectParameters);
 		try {
-			return getDownStreamResult(buildResult, commitToTest);
+			return getDownStreamResult(buildResult);
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 			Logger.error(
-					"Downstream project threw an exception for revision " + commitToTest + " you may want to skip it");
+					"Downstream project threw an exception you may want to skip it this revision");
 			throw new DownstreamProjectCrashed();
 		}
 	}
 	
-	private QueueTaskFuture<? extends Run<?, ?>> runDownStreamProject(Run<?, ?> build, String commitId) {
-		ArrayList<ParameterValue> combinedParameters = bubbleDownParameters(build, commitId);
+	private QueueTaskFuture<? extends Run<?, ?>> runDownStreamProject(
+								HashMap<String, ParameterValue> bisectParameters) 
+	{
+		ArrayList<ParameterValue> combinedParameters = bubbleDownParameters(bisectParameters);
 
 		@SuppressWarnings("unchecked")
 		QueueTaskFuture<? extends Run<?, ?>> buildResult =
@@ -57,7 +57,7 @@ public class CommitTester {
 		return buildResult;
 	}
 
-	private boolean getDownStreamResult(QueueTaskFuture<? extends Run<?, ?>> buildResult, String commitToTest)
+	private boolean getDownStreamResult(QueueTaskFuture<? extends Run<?, ?>> buildResult)
 			throws InterruptedException, ExecutionException 
 	{
 		Result downstreamResult = buildResult.get().getResult();
@@ -85,27 +85,32 @@ public class CommitTester {
 		return downstreamResult.equals(Result.SUCCESS);
 	}
 
-	private ArrayList<ParameterValue> bubbleDownParameters(Run<?, ?> build, String commitId) {
+	private ArrayList<ParameterValue> bubbleDownParameters(HashMap<String, ParameterValue> bisectParameters) {
+		// Using HashMap to easily override and prioritize parameters
 		HashMap<String, ParameterValue> combinedParameters = new HashMap<>();
-		addOwnParameters(build.getActions(ParametersAction.class), combinedParameters);
+		
+		// Default parameters are assigned first
+		// Own parameters override default parameters 
 		combinedParameters.putAll(defaultJobParameters(downstreamProj));
-		combinedParameters.put(revisionParameterName, new StringParameterValue(revisionParameterName, commitId));
+		combinedParameters.putAll(getOwnParameters(build.getActions(ParametersAction.class)));
+		combinedParameters.putAll(bisectParameters);
 
 		ArrayList<ParameterValue> result = new ArrayList<>();
-
-		for (ParameterValue p : combinedParameters.values())
-			result.add(p);
-
+		result.addAll(combinedParameters.values());
 		return result;
 	}
 
-	private void addOwnParameters(List<ParametersAction> actions, HashMap<String, ParameterValue> combinedParameters) {
+	private HashMap<String, ParameterValue> getOwnParameters(List<ParametersAction> actions) {
+		HashMap<String, ParameterValue> params = new HashMap<>();
+		
 		for (ParametersAction parametersAction : actions) {
 			for (ParameterValue parameterValue : parametersAction.getParameters()) {
 				Logger.log("Aggregating parameter - " + parameterValue);
-				combinedParameters.put(parameterValue.getName(), parameterValue);
+				params.put(parameterValue.getName(), parameterValue);
 			}
 		}
+		
+		return params;
 	}
 
 	private HashMap<String, ParameterValue> defaultJobParameters(Job<?, ?> downstreamProj) {
@@ -145,12 +150,21 @@ public class CommitTester {
 		return null;
 	}
 	
-	public static CommitTester buildFor(Run<?, ?> bisectBuild, String jobToRun, String revisionParameterName) {
+	public static CommitTester buildFor(
+								Run<?, ?> bisectBuild, 
+								String jobToRun) 
+	{
 		Job<?, ?> downstreamProject = findDownStreamProject(jobToRun);
 		
     	if (downstreamProject == null)
     		throw new DownstreamProjectNotFound();
     	
-		return new CommitTester(bisectBuild, downstreamProject, revisionParameterName);
+		return new CommitTester(bisectBuild, downstreamProject);
+	}
+
+	public static HashMap<String, ParameterValue> withBisectParams(String revisionParameterName, String commit) {
+		HashMap<String, ParameterValue> bisectParams = new HashMap<String, ParameterValue>();
+		bisectParams.put(revisionParameterName, new StringParameterValue(revisionParameterName, commit));
+		return bisectParams;
 	}
 }
