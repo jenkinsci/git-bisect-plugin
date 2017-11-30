@@ -1,5 +1,6 @@
 package git.gitbisect;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -142,7 +143,7 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 		do
 		{
 			Logger.log("Running downstream project with revision = '" + commit +"'");
-			buildResult.updateResult(commitTester.test(CommitTester.withBisectParams(revisionParameterName, commit)));
+			buildResult.updateResult(commitTester.test(withBisectParams(revisionParameterName, commit)));
 		}
 		while (!buildResult.verifiedResult());
 		
@@ -245,6 +246,12 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 	
 	public String getGitCommand() {
 		return gitCommand;
+	}
+	
+	public static HashMap<String, String> withBisectParams(String revisionParameterName, String commit) {
+		HashMap<String, String> bisectParams = new HashMap<>();
+		bisectParams.put(revisionParameterName, commit);
+		return bisectParams;
 	}
 
     @Extension

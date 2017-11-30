@@ -3,8 +3,11 @@ package git.gitbisect;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
+import git.gitbisect.Logger;
+import git.gitbisect.ParametersToEnvVarsAction;
 import hudson.model.Job;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
@@ -34,7 +37,7 @@ public class CommitTester {
 		this.downstreamProj = downstreamProj;
 	}
 
-	public boolean test(HashMap<String, ParameterValue> bisectParameters) throws InterruptedException {
+	public boolean test(HashMap<String, String> bisectParameters) throws InterruptedException {
 		QueueTaskFuture<? extends Run<?, ?>> buildResult = runDownStreamProject(bisectParameters);
 		try {
 			return getDownStreamResult(buildResult);
@@ -47,13 +50,17 @@ public class CommitTester {
 	}
 	
 	private QueueTaskFuture<? extends Run<?, ?>> runDownStreamProject(
-								HashMap<String, ParameterValue> bisectParameters) 
+								HashMap<String, String> bisectParameters) 
 	{
 		ArrayList<ParameterValue> combinedParameters = bubbleDownParameters(bisectParameters);
 
 		@SuppressWarnings("unchecked")
 		QueueTaskFuture<? extends Run<?, ?>> buildResult =
-				new JobWrapper().scheduleBuild2(-1, new ParametersAction(combinedParameters));
+				new JobWrapper().scheduleBuild2(
+								-1, 
+								new ParametersToEnvVarsAction(bisectParameters),
+								new ParametersAction(combinedParameters));
+								
 		return buildResult;
 	}
 
@@ -85,7 +92,7 @@ public class CommitTester {
 		return downstreamResult.equals(Result.SUCCESS);
 	}
 
-	private ArrayList<ParameterValue> bubbleDownParameters(HashMap<String, ParameterValue> bisectParameters) {
+	private ArrayList<ParameterValue> bubbleDownParameters(HashMap<String,String> bisectParameters) {
 		// Using HashMap to easily override and prioritize parameters
 		HashMap<String, ParameterValue> combinedParameters = new HashMap<>();
 		
@@ -93,8 +100,10 @@ public class CommitTester {
 		// Own parameters override default parameters 
 		combinedParameters.putAll(defaultJobParameters(downstreamProj));
 		combinedParameters.putAll(getOwnParameters(build.getActions(ParametersAction.class)));
-		combinedParameters.putAll(bisectParameters);
-
+		
+		for (Entry<String, String> param : bisectParameters.entrySet())
+			combinedParameters.put(param.getKey(), new StringParameterValue(param.getKey(), param.getValue()));
+		
 		ArrayList<ParameterValue> result = new ArrayList<>();
 		result.addAll(combinedParameters.values());
 		return result;
@@ -160,11 +169,5 @@ public class CommitTester {
     		throw new DownstreamProjectNotFound();
     	
 		return new CommitTester(bisectBuild, downstreamProject);
-	}
-
-	public static HashMap<String, ParameterValue> withBisectParams(String revisionParameterName, String commit) {
-		HashMap<String, ParameterValue> bisectParams = new HashMap<String, ParameterValue>();
-		bisectParams.put(revisionParameterName, new StringParameterValue(revisionParameterName, commit));
-		return bisectParams;
 	}
 }
