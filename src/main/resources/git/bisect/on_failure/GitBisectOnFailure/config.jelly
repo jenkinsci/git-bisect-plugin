@@ -1,0 +1,50 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <!--
+    This jelly script is used for per-project configuration.
+
+    See global.jelly for a general discussion about jelly script.
+  -->
+
+  <f:entry
+  	title="Revision Parameter Name"
+  	field="revisionParameterName"
+  	description="This field allows you to control the name of the special parameter
+  				 that will hold the revision to test and will be passed into the project
+  				 under test">
+  	<f:textbox default="REVISION"/>
+  </f:entry>
+  <f:entry 
+	title="Retry number"
+	field="retryCount"
+	description="Use this if the project or some of the revisions are known to not be stable.
+				 If a revision fails, It won't be marked as 'bad' unless it 
+				 failed the specified number of times.
+				 defaults to no retries.
+				 
+				 Useful when the project fails because of reasons unrelated 
+				 to your search (such as jenkins failures or network interferences)">	
+	<f:number default="0"/>
+  </f:entry>
+  <f:entry 
+	title="Min Successful Runs"
+	field="minSuccessfulIterations"
+	description="Use this if the bug you are looking for may need more then one run to reveal itself
+				 For example, if you are looking for a race condition that occurs 1 time per 10 runs. 
+				 You can combine this property with the Retry property.">
+	<f:number default="1"/>
+  </f:entry>
+  <f:block>
+  	<f:optionalBlock 
+			title="Override git command" 
+		    default="false" 
+		    checked="${overrideGitCommand}"
+		    field="overrideGitCommand"
+		    description="Used if you use a different git executable that is not 'git'"
+		    inline="true"> 
+	    <f:entry title="Git Command:" description="The git command that will be used for running 'git bisect ...'"> 
+	      <f:textbox field="gitCommand" default="git"/> 
+	    </f:entry> 
+	</f:optionalBlock> 
+  </f:block> 
+</j:jelly>

@@ -1,4 +1,4 @@
-package git.gitbisect;
+package git.bisect.builder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.google.common.io.CharStreams;
 
+import git.bisect.Logger;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.Run;
@@ -22,8 +23,8 @@ public class CommandsRunner {
 			this.commit = commit;
 		}
 		
-		boolean isDone;
-		String commit;
+		public boolean isDone;
+		public String commit;
 	}
 	public static class CommandOutput
 	{
@@ -40,7 +41,12 @@ public class CommandsRunner {
 	}
 	
 	public static enum CommitState{
-		Bad, Good
+		Bad, Good;
+		
+		public static CommitState fromBool(boolean flag)
+		{
+			return flag ? Good : Bad;
+		}
 	}
 	
 	Run<?,?> build; 
@@ -205,7 +211,7 @@ public class CommandsRunner {
 	
 	private void writeToLog(String line)
 	{
-		listener.getLogger().println("[GIT-BISECT]: " + line);
+		Logger.log("[GIT-BISECT]: " + line);
 	}
 	
 	private void writeResultToLog(CommandOutput result, String... cmds) {

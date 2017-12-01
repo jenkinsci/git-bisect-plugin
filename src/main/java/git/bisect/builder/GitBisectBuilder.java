@@ -1,18 +1,21 @@
-package git.gitbisect;
+package git.bisect.builder;
 import java.io.IOException;
 import java.util.HashMap;
 
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import git.gitbisect.CommandsRunner.BisectionResult;
-import git.gitbisect.CommandsRunner.CommandOutput;
-import git.gitbisect.CommandsRunner.CommitState;
+import git.bisect.Logger;
+import git.bisect.builder.CommandsRunner.BisectionResult;
+import git.bisect.builder.CommandsRunner.CommandOutput;
+import git.bisect.builder.CommandsRunner.CommitState;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractProject;
+import hudson.model.ParameterValue;
 import hudson.model.Run;
+import hudson.model.StringParameterValue;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
@@ -74,7 +77,12 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 		try
 		{
 			runBisection();
-		} finally {
+		} catch (Exception e)
+		{
+			Logger.log("Cought exception - bisect stopping");
+			e.printStackTrace();
+		}
+		finally {
 			configuration.cleanup();
 			// This solves some annoying problems 
 			// Git sometimes fails to delete a branch while bisecting
@@ -147,7 +155,7 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 		}
 		while (!buildResult.verifiedResult());
 		
-		return helper.markCommitAs(commit, buildResult.wasGood() ? CommitState.Good : CommitState.Bad);
+		return helper.markCommitAs(commit, CommitState.fromBool(buildResult.wasGood()));
 	}
 
     private void copyResultsToMaster()

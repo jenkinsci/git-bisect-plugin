@@ -1,4 +1,4 @@
-package git.gitbisect;
+package git.bisect.builder;
 
 public class DownstreamProjectCrashed extends RuntimeException
 {

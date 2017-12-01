@@ -1,4 +1,4 @@
-package git.gitbisect;
+package git.bisect;
 
 import java.util.HashMap;
 

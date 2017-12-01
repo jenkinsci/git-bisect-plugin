@@ -1,4 +1,4 @@
-package git.gitbisect;
+package git.bisect;
 
 import hudson.model.TaskListener;
 
@@ -13,6 +13,11 @@ public class Logger {
 	public static void log(String line)
 	{
 		listener.getLogger().println("[GIT-BISECT]: " + line);
+	}
+	
+	public static void printStackTrace(Exception e)
+	{
+		e.printStackTrace(listener.getLogger());
 	}
 
 	public static void error(String string) {

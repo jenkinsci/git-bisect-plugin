@@ -1,4 +1,4 @@
-package git.gitbisect;
+package git.bisect.builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +13,7 @@ public class BisectConfiguration {
 	FilePath masterResultFile;
 	FilePath localResultsFile;
 	
-	BisectConfiguration(Run<?,?> build, FilePath workspace, TaskListener listener, String searchIdentifier) throws IOException, InterruptedException{
+	public BisectConfiguration(Run<?,?> build, FilePath workspace, TaskListener listener, String searchIdentifier) throws IOException, InterruptedException{
 		this.listener = listener;
     	
 		File rootDir = build.getParent().getRootDir();

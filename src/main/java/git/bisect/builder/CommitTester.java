@@ -1,4 +1,4 @@
-package git.gitbisect;
+package git.bisect.builder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
-import git.gitbisect.Logger;
-import git.gitbisect.ParametersToEnvVarsAction;
+import git.bisect.Logger;
+import git.bisect.ParametersToEnvVarsAction;
+import hudson.EnvVars;
 import hudson.model.Job;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
@@ -47,6 +48,10 @@ public class CommitTester {
 					"Downstream project threw an exception you may want to skip it this revision");
 			throw new DownstreamProjectCrashed();
 		}
+	}
+	
+	public void runRecursivly(HashMap<String, String> bisectParameters) {
+		runDownStreamProject(bisectParameters);
 	}
 	
 	private QueueTaskFuture<? extends Run<?, ?>> runDownStreamProject(
