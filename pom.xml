@@ -9,7 +9,7 @@
     <relativePath />
   </parent>
   <artifactId>git-bisect</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2</version>
   <packaging>hpi</packaging>
 
   <properties>
@@ -54,7 +54,7 @@
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
     <url>http://github.com/jenkinsci/${project.artifactId}-plugin</url>
-    <tag>git-bisect-1.0</tag>
+    <tag>git-bisect-1.2</tag>
   </scm>
   <repositories>
     <repository>
