@@ -14,11 +14,8 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractProject;
-import hudson.model.BooleanParameterValue;
-import hudson.model.ParameterValue;
 import hudson.model.Result;
 import hudson.model.Run;
-import hudson.model.StringParameterValue;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
@@ -28,7 +25,7 @@ import jenkins.tasks.SimpleBuildStep;
 
 public class GitBisectOnFailure extends Notifier implements SimpleBuildStep {
 
-	class CommitPair{
+	static class CommitPair{
 		public CommitPair(String goodCommit, String badCommit) {
 			this.goodCommit = goodCommit;
 			this.badCommit = badCommit;
@@ -45,9 +42,6 @@ public class GitBisectOnFailure extends Notifier implements SimpleBuildStep {
 	private static final String BISECT_IDENTIFIER = "BISECT_INTERNAL_SEARCH_IDENTIFIER";
 
 	transient private Run<?, ?> build;
-	transient private FilePath workspace;
-	transient private Launcher launcher;
-	transient private TaskListener listener;
 	transient private EnvVars env;
 	transient private CommitTester commitTester;
 	transient private CommandsRunner cmd;
@@ -81,9 +75,6 @@ public class GitBisectOnFailure extends Notifier implements SimpleBuildStep {
 		try
 		{
 			this.build = build;
-			this.workspace = workspace;
-			this.launcher = launcher;
-			this.listener = listener;
 			
 			Logger.initializeLogger(listener);
 			env = build.getEnvironment(listener);

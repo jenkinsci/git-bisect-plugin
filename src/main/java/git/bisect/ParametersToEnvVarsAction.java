@@ -1,6 +1,7 @@
 package git.bisect;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import hudson.EnvVars;
 import hudson.model.AbstractBuild;
@@ -26,8 +27,8 @@ public class ParametersToEnvVarsAction implements EnvironmentContributingAction 
 
 	@Override
 	public void buildEnvVars(AbstractBuild<?, ?> build, EnvVars env) {
-		for (String envVar : bisectParameters.keySet()) {
-			env.put(envVar, bisectParameters.get(envVar));
+		for (Entry<String, String> envVar : bisectParameters.entrySet()) {
+			env.put(envVar.getKey(), envVar.getValue());
 		}
 	}
 
