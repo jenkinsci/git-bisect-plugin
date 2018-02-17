@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import git.bisect.CommitPair;
 import git.bisect.Logger;
 import git.bisect.builder.CommandsRunner;
 import git.bisect.builder.CommandsRunner.BisectionResult;
@@ -24,16 +25,6 @@ import hudson.tasks.Publisher;
 import jenkins.tasks.SimpleBuildStep;
 
 public class GitBisectOnFailure extends Notifier implements SimpleBuildStep {
-
-	static class CommitPair{
-		public CommitPair(String goodCommit, String badCommit) {
-			this.goodCommit = goodCommit;
-			this.badCommit = badCommit;
-		}
-		
-		public String goodCommit;
-		public String badCommit;
-	}
 
 	private static final String GIT_PREV_GOOD = "GIT_PREVIOUS_SUCCESSFUL_COMMIT";
 	private static final String GIT_COMMIT = "GIT_COMMIT";
@@ -72,6 +63,8 @@ public class GitBisectOnFailure extends Notifier implements SimpleBuildStep {
     
 	@Override
     public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+		EnvVars envVars = build.getEnvironment(listener);
+		String gitCommand = envVars.expand(this.gitCommand);
 		try
 		{
 			this.build = build;

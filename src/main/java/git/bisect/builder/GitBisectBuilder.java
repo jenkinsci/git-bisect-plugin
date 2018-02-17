@@ -5,17 +5,17 @@ import java.util.HashMap;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import git.bisect.CommitPair;
 import git.bisect.Logger;
 import git.bisect.builder.CommandsRunner.BisectionResult;
 import git.bisect.builder.CommandsRunner.CommandOutput;
 import git.bisect.builder.CommandsRunner.CommitState;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractProject;
-import hudson.model.ParameterValue;
 import hudson.model.Run;
-import hudson.model.StringParameterValue;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
@@ -37,7 +37,9 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
     transient BisectConfiguration configuration;
 	transient CommandsRunner helper;
 	transient CommitTester commitTester;
-
+	transient EnvVars envVars;
+	transient CommitPair commitRange;
+	
 	// DataBoundConstructor is for the jelly config file
 	@DataBoundConstructor
     public GitBisectBuilder(
@@ -62,11 +64,23 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 		this.overrideGitCommand = overrideGitCommand;
 		this.gitCommand = gitCommand;
     }
-    
+
+	private String expand(String str) 
+	{
+		return envVars.expand(str);
+	}
+	
     @Override
     public void perform(Run<?,?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException{
     	Logger.initializeLogger(listener);
     	Logger.log("Initializing");
+    	envVars = build.getEnvironment(listener);
+    	String jobToRun = expand(this.jobToRun);
+    	String searchIdentifier = expand(this.searchIdentifier);
+    	String gitCommand = expand(this.gitCommand);
+    	this.commitRange = new CommitPair(
+    			expand(this.goodStartCommit),
+    			expand(this.badEndCommit));
     	
     	this.helper = new CommandsRunner(build, workspace, launcher, listener, gitCommand);
     	this.configuration = new BisectConfiguration(build, workspace, listener, searchIdentifier);
@@ -151,6 +165,7 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 		do
 		{
 			Logger.log("Running downstream project with revision = '" + commit +"'");
+			String revisionParameterName = expand(this.revisionParameterName);
 			buildResult.updateResult(commitTester.test(withBisectParams(revisionParameterName, commit)));
 		}
 		while (!buildResult.verifiedResult());
@@ -201,13 +216,15 @@ public class GitBisectBuilder extends Builder implements SimpleBuildStep {
 					+ "either one of the revisions does not exist or the git configuration is malformed. "
 					+ "Check the previous log lines for more information.");
 		
-		helper.markCommitAs(badEndCommit, CommitState.Bad);
-		return helper.markCommitAs(goodStartCommit, CommitState.Good);
+		helper.markCommitAs(commitRange.badCommit, CommitState.Bad);
+		return 
+			helper.markCommitAs(commitRange.goodCommit, CommitState.Good);
 	}
-
+	
 	private boolean validInput() throws IOException, InterruptedException {
-		return helper.checkExistance(badEndCommit) && 
-			   helper.checkExistance(goodStartCommit);
+		// TODO: needs to check that goodStart comes before badEnd
+		return helper.checkExistance(commitRange.badCommit) && 
+			   helper.checkExistance(commitRange.goodCommit);
 	}
 
     // Overridden for better type safety.
