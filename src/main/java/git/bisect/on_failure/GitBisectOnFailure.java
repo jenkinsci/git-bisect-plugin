@@ -63,6 +63,8 @@ public class GitBisectOnFailure extends Notifier implements SimpleBuildStep {
     
 	@Override
     public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+		EnvVars envVars = build.getEnvironment(listener);
+		String gitCommand = envVars.expand(this.gitCommand);
 		try
 		{
 			this.build = build;
