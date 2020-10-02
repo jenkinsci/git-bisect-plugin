@@ -93,7 +93,7 @@ The parameter name used to pass the revision to the Tester Project. Defaults to 
 
 This parameter is used to distinguish between two different bisections. If the bisection stopped it can be resumed based on this identifier.  
 
-**Note:**  This is used as a file name inside the jenkins master. You can interfere with the decisions this job makes, or add revisions to ignore by editing this file. It can be found under the project directory in jenkins, for example - 
+**Note:**  This is used as a file name inside the jenkins controller. You can interfere with the decisions this job makes, or add revisions to ignore by editing this file. It can be found under the project directory in jenkins, for example - 
 
 ``` syntaxhighlighter-pre
 /var/jenkins/jobs/PROJECT_NAME/SEARCH_IDENTIFIER_1
