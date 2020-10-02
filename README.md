@@ -49,9 +49,29 @@ This is a more customizable variation of the plugin that allows you to run a lon
 
 It is meant to be used for cases where a bug was introduced sometime ago; You know how to test, and you know atleast one good revision where the bug did not exist. This variation of the plugin is also aimed to fit long builds that might be unstable or to find bugs that reproduce in an inconsistent manner.
 
-To set it up, you need to have 2 Projects, one is for testing the bug (**"Tester Project")** and the other is for running the bisection (**"Bisect Project"**)
+**To set it up, you need to have 2 Projects, one is for testing the bug ("Tester Project") and the other is for running the bisection ("Bisect Project")**
 
-[TABLE]
+**Bisect Project**
+
+1. GitSCM 
+    - Define it using the same git repository
+    - Must not be a shallow copy    
+2. Job Type	
+    - Can be either FreeStyleProject or a Pipeline Project
+    - Use gitbisect in Pipeline projects.
+3. Parameterized Build	
+    - Any parameters defined will bubble down to the Tester Project
+
+
+**Tester Project**
+1. GitSCM 
+    - be able to checkout a revision using a parameter:
+    <img src='docs/images/image2017-12-2_23:25:28.png' width='500px' >
+2. Job Type	
+    - Can be either FreeStyleProject or a Pipeline Project
+3. Parameterized Build	
+    - Must support a parameter for the choosing the revision, the default name is 'REVISION'. It's configurable in the "Git Bisect" Build Step in the Bisect Project
+
 
 ## Example Configuration
 
