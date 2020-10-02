@@ -28,7 +28,7 @@
 
   <name>Git Bisect Plugin</name>
   <description>Allows you to run git bisect with projects automatically</description>
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Git+Bisect</url>
+  <url>https://github.com/jenkinsci/git-bisect-plugin</url>
 
   <!-- The default licence for Jenkins OSS Plugins is MIT. Substitute for the applicable one if needed. -->
 
