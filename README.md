@@ -24,7 +24,7 @@ You need to:
 
 -   Be able to determine for each commit whether it's broken or not - in a **single jenkins** job
     -   If your build is separated to two projects - build & test, you can use a pipeline and use that pipeline as a single build
--   Use Git SCM, or be able to run arbitrary git commands in the workspace
+-   Use Git SCM or be able to run arbitrary git commands in the workspace
 
 ## How to use this plugin
 
@@ -47,7 +47,7 @@ This is useful for nightly build failures. The plugin can help you find the spec
 
 This is a more customizable variation of the plugin that allows you to run a long-running bisection process; 
 
-It is meant to be used for cases where a bug was introduced sometime ago; You know how to test, and you know atleast one good revision where the bug did not exist. This variation of the plugin is also aimed to fit long builds that might be unstable or to find bugs that reproduce in an inconsistent manner.
+It is meant to be used for cases where a bug was introduced sometime ago; You know how to test, and you know at least one good revision where the bug did not exist. This variation of the plugin is also aimed to fit long builds that might be unstable or to find bugs that reproduce in an inconsistent manner.
 
 **To set it up, you need to have 2 Projects, one is for testing the bug ("Tester Project") and the other is for running the bisection ("Bisect Project")**
 
@@ -70,7 +70,7 @@ It is meant to be used for cases where a bug was introduced sometime ago; You kn
 2. Job Type	
     - Can be either FreeStyleProject or a Pipeline Project
 3. Parameterized Build	
-    - Must support a parameter for the choosing the revision, the default name is 'REVISION'. It's configurable in the "Git Bisect" Build Step in the Bisect Project
+    - Must support a revision parameter. The default name is 'REVISION'. It's configurable in the "Git Bisect" Build Step in the Bisect Project
 
 
 ## Example Configuration
@@ -113,7 +113,7 @@ The parameter name used to pass the revision to the Tester Project. Defaults to 
 
 This parameter is used to distinguish between two different bisections. If the bisection stopped it can be resumed based on this identifier.  
 
-**Note:**  This is used as a file name inside the jenkins controller. You can interfere with the decisions this job makes, or add revisions to ignore by editing this file. It can be found under the project directory in jenkins, for example - 
+**Note:**  This is used as a file name inside the Jenkins controller. You can interfere with the decisions this job makes, or add revisions to ignore by editing this file. It can be found under the project directory in Jenkins, for example - 
 
 ``` syntaxhighlighter-pre
 /var/jenkins/jobs/PROJECT_NAME/SEARCH_IDENTIFIER_1
