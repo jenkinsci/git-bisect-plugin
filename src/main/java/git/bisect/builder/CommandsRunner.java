@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.io.CharStreams;
-
 import git.bisect.Logger;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -120,9 +118,8 @@ public class CommandsRunner {
 		return null;
 	}
 
-	private List<String> linesOf(String s) throws IOException, InterruptedException {
-		return CharStreams.readLines(
-				CharStreams.newReaderSupplier(s));
+	private static List<String> linesOf(String s) {
+		return Arrays.asList(s.split("\\R"));
 	}
 	
 	public boolean checkExistance(String commit) throws IOException, InterruptedException {
