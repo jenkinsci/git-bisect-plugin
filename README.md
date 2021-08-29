@@ -140,3 +140,12 @@ On some systems, git might not be defined in PATH or it's aliased to a different
 Running in a pipeline currently works, but it's harder to configure.
 
 Make sure that before the gitbisect command is used, a "checkout" or "git" command is present to set the repository.
+
+## Issues
+
+Report issues and enhancements in the [Jenkins issue tracker](https://issues.jenkins.io/).
+Use the `git-bisect-plugin` component in the `JENKINS` project.
+
+## Contributing
+
+Refer to our [contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md).

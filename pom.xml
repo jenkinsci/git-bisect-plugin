@@ -5,37 +5,43 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>2.11</version>
+    <version>4.24</version>
     <relativePath />
   </parent>
   <artifactId>git-bisect</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
 
   <properties>
-    <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-    <jenkins.version>1.625.3</jenkins.version>
-    <!-- Java Level to use. Java 7 required when using core >= 1.612 -->
-    <java.level>7</java.level>
-    <!-- Jenkins Test Harness version you use to test the plugin. -->
-    <!-- For Jenkins version >= 1.580.1 use JTH 2.x or higher. -->
-    <jenkins-test-harness.version>2.13</jenkins-test-harness.version>
-    <!-- Other properties you may want to use:
-         ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
-         ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
-    -->
+    <revision>1.4</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <jenkins.version>2.222.4</jenkins.version>
+    <java.level>8</java.level>
+    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
   </properties>
 
   <name>Git Bisect Plugin</name>
   <description>Allows you to run git bisect with projects automatically</description>
-  <url>https://github.com/jenkinsci/git-bisect-plugin</url>
+  <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.222.x</artifactId>
+        <version>887.vae9c8ac09ff7</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <!-- The default licence for Jenkins OSS Plugins is MIT. Substitute for the applicable one if needed. -->
 
   <licenses>
     <license>
       <name>MIT License</name>
-      <url>http://opensource.org/licenses/MIT</url>
+      <url>https://opensource.org/licenses/MIT</url>
     </license>
   </licenses>
 
@@ -51,10 +57,10 @@
   <!-- Assuming you want to host on @jenkinsci:
    -->
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-    <url>http://github.com/jenkinsci/${project.artifactId}-plugin</url>
-    <tag>git-bisect-1.0</tag>
+    <connection>scm:git:git://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <url>https://github.com/${gitHubRepo}</url>
+    <tag>${scmTag}</tag>
   </scm>
   <repositories>
     <repository>
@@ -73,12 +79,6 @@
     <dependency>
     	<groupId>org.jenkins-ci.plugins</groupId>
     	<artifactId>git</artifactId>
-    	<version>2.6.0</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.jenkins-ci.plugins</groupId>
-    	<artifactId>structs</artifactId>
-    	<version>1.2</version>
     </dependency>
   </dependencies>
 
