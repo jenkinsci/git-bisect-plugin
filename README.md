@@ -36,9 +36,9 @@ There are two modes for running the plugin:
 
 This is useful for nightly build failures. The plugin can help you find the specific commit that broke the build since the last time it ran. To use it you an add a post-build action to your build. You will also need to configure the git branch specifier to use a parameter.
 
-<img src='docs/images/image2017-12-2_23:26:36.png' width="619"/>
+<img src='docs/images/image2017-12-2_23-26-36.png' width="619"/>
 
-<img src='docs/images/image2017-12-2_23:25:28.png' width="619"/>
+<img src='docs/images/image2017-12-2_23-25-28.png' width="619"/>
 
 <img src='docs/images/Capture.PNG' height="150"/>
 
@@ -66,7 +66,7 @@ It is meant to be used for cases where a bug was introduced sometime ago; You kn
 **Tester Project**
 1. GitSCM 
     - be able to checkout a revision using a parameter:
-    <img src='docs/images/image2017-12-2_23:25:28.png' width='500px' >
+    <img src='docs/images/image2017-12-2_23-25-28.png' width='500px' >
 2. Job Type	
     - Can be either FreeStyleProject or a Pipeline Project
 3. Parameterized Build	
@@ -77,19 +77,19 @@ It is meant to be used for cases where a bug was introduced sometime ago; You kn
 
 ### Bisect Project
 
-<img src='docs/images/image2017-9-17_21:56:41.png' width="500" />
+<img src='docs/images/image2017-9-17_21-56-41.png' width="500" />
 
-<img src='docs/images/image2017-9-17_22:1:4.png' width="500" />
+<img src='docs/images/image2017-9-17_22-1-4.png' width="500" />
 
-<img src='docs/images/image2017-9-17_22:0:9.png' width="500" />
+<img src='docs/images/image2017-9-17_22-0-9.png' width="500" />
 
  
 
 ### Tester Project
 
-<img src='docs/images/image2017-9-17_22:1:59.png' width="500" />
+<img src='docs/images/image2017-9-17_22-1-59.png' width="500" />
 
-<img src='docs/images/image2017-9-17_22:2:46.png' width="500" />
+<img src='docs/images/image2017-9-17_22-2-46.png' width="500" />
 
 ## Parameters
 
