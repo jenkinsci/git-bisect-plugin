@@ -77,8 +77,14 @@
   <!-- If you want to depend on other plugins:  -->
   <dependencies>
     <dependency>
-    	<groupId>org.jenkins-ci.plugins</groupId>
-    	<artifactId>git</artifactId>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>git</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
