@@ -15,7 +15,7 @@
   <properties>
     <revision>1.5</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.222.4</jenkins.version>
+    <jenkins.version>2.289.1</jenkins.version>
     <java.level>8</java.level>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
   </properties>
@@ -28,8 +28,8 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.222.x</artifactId>
-        <version>887.vae9c8ac09ff7</version>
+        <artifactId>bom-2.289.x</artifactId>
+        <version>1083.vb6e5d3561904</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -79,12 +79,6 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>git</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.mail</groupId>
-          <artifactId>mail</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 
