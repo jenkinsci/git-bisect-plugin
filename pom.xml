@@ -9,11 +9,11 @@
     <relativePath />
   </parent>
   <artifactId>git-bisect</artifactId>
-  <version>1.5</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
 
   <properties>
-    <revision>1.5</revision>
+    <revision>1.6</revision>
     <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.289.1</jenkins.version>
     <java.level>8</java.level>
@@ -60,7 +60,7 @@
     <connection>scm:git:git://github.com/${gitHubRepo}.git</connection>
     <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
     <url>https://github.com/${gitHubRepo}</url>
-    <tag>git-bisect-1.5</tag>
+    <tag>${scmTag}</tag>
   </scm>
   <repositories>
     <repository>
