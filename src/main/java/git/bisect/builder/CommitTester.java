@@ -159,7 +159,7 @@ public class CommitTester {
 		if (jenkins == null) return null;
 		
 		for (Job<?, ?> proj : jenkins.getAllItems(Job.class)) 
-			if (proj.getName().equals(jobToRun))
+			if (proj.getFullName().equals(jobToRun))
 				return proj;
 		return null;
 	}
